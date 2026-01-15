@@ -26,8 +26,5 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
-        extra = "ignore"  # <-- ignores unknown .env keys
-
-
-# Create settings instance at the bottom
+        extra = "ignore"
 settings = Settings()
