@@ -51,27 +51,15 @@ def register_user(data: RegisterRequest):
 @router.post("/login")
 def login_user(data: LoginRequest):
     supabase = get_db()
-
-    logger.info(f"Login attempt: {data.email}")
-
-    try:
-        auth_response = supabase.auth.sign_in_with_password({
-            "email": data.email,
-            "password": data.password,
-        })
-    except Exception as e:
+    user_query = supabase.table("tbl_users").select("*").eq("email", data.email).execute()
+    if not user_query.data or len(user_query.data) == 0:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    if not auth_response.session:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
+    user = user_query.data[0]
     return {
-        "access_token": auth_response.session.access_token,
-        "refresh_token": auth_response.session.refresh_token,
         "user": {
-            "id": auth_response.user.id,
-            "email": auth_response.user.email,
-            "created_at": auth_response.user.created_at
+            "id": user["id"],
+            "username": user["username"],
+            "email": user["email"]
         },
         "status_code": "200",
         "message": "Login successful"
