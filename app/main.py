@@ -16,7 +16,6 @@ app = FastAPI(
 )
 
 # Middleware
-
 app = FastAPI()
 setup_cors(app)
 register_lifecycle_events(app, logger)

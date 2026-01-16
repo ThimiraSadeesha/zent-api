@@ -54,10 +54,13 @@ def login_user(data: LoginRequest):
 
     logger.info(f"Login attempt: {data.email}")
 
-    auth_response = supabase.auth.sign_in_with_password({
-        "email": data.email,
-        "password": data.password,
-    })
+    try:
+        auth_response = supabase.auth.sign_in_with_password({
+            "email": data.email,
+            "password": data.password,
+        })
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
     if not auth_response.session:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -65,5 +68,11 @@ def login_user(data: LoginRequest):
     return {
         "access_token": auth_response.session.access_token,
         "refresh_token": auth_response.session.refresh_token,
-        "user": auth_response.user,
+        "user": {
+            "id": auth_response.user.id,
+            "email": auth_response.user.email,
+            "created_at": auth_response.user.created_at
+        },
+        "status_code": "200",
+        "message": "Login successful"
     }
