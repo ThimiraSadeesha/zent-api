@@ -1,10 +1,12 @@
 
 from fastapi import FastAPI
+
+from app.api.auth import auth
 from app.core.configs.config import settings
 from app.core.logging.logger import setup_logging
 from app.core.middleware.cors import setup_cors
 from app.core.middleware.lifecycle import register_lifecycle_events
-from app.api.auth import auth
+from app.api.servers import servers
 
 logger = setup_logging()
 
@@ -21,6 +23,7 @@ setup_cors(app)
 register_lifecycle_events(app, logger)
 
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
+app.include_router(servers.router, prefix="/api/v1/server", tags=["server"])
 
 @app.get("/")
 async def root():
