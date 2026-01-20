@@ -1,10 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from app.services.ssh_service import ssh_connect
+from app.services.ssh_service import ssh_connect, get_client, get_docker_stats
 import logging
 
 logger = logging.getLogger(__name__)
-
 router = APIRouter()
 
 
@@ -17,17 +16,35 @@ class SSHLoginRequest(BaseModel):
 
 
 @router.post("/ssh")
-def login_server_ssh(data: SSHLoginRequest):
-    client = ssh_connect(
-        host=data.host,
-        username=data.username,
-        password=data.password,
-        port=data.port,
-        key=data.key
-    )
-    if not client:
-        raise HTTPException(status_code=401, detail="SSH login failed")
-    stdin, stdout, stderr = client.exec_command("uptime")
-    result = stdout.read().decode().strip()
-    client.close()
-    return {"message": "SSH login successful", "uptime": result}
+def login_server_ssh(request: SSHLoginRequest):
+    try:
+        data = ssh_connect(
+            host=request.host,
+            username=request.username,
+            password=request.password,
+            port=request.port,
+            key=request.key,
+        )
+        return {
+            "status": "success",
+            "data": data
+        }
+    except Exception as e:
+        logger.error(f"SSH connection error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"SSH connection failed: {str(e)}"
+        )
+
+
+@router.get("/docker/stats")
+def docker_stats():
+    client = get_client()
+
+    if client is None:
+        raise HTTPException(status_code=400, detail="SSH not connected. Please call /ssh first.")
+
+    return {
+        "status": "success",
+        "data": get_docker_stats(client)
+    }
