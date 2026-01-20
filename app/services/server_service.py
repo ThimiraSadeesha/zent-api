@@ -95,6 +95,14 @@ def ssh_connect(host: str, username: str, password: Optional[str] = None,
         logger.error(f"❌ SSH login failed: {username}@{host}:{port} | {str(e)}")
         raise e
 
+def reboot_server(client):
+    cmd = "sudo reboot"
+    try:
+        client.exec_command(cmd)
+        return {"status": "rebooting"}
+    except Exception as e:
+        return {"error": str(e)}
+
 
 def get_client():
     global ssh_client

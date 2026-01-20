@@ -36,4 +36,14 @@ def login_server_ssh(request: SSHLoginRequest):
             detail=f"SSH connection failed: {str(e)}"
         )
 
+@router.get("/reboot")
+def reboot_server_route():
+    client = get_client()
+    if client is None:
+        raise HTTPException(status_code=400, detail="SSH not connected. Please call /ssh first.")
+
+    return {
+        "status": "success",
+        "data": "System is rebooting..."
+    }
 
