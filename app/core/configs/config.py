@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
-    # Supabase
-    SUPABASE_URL: str = "https://likxkrjtwdtsqqpwbleu.supabase.co"
-    SUPABASE_KEY: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxpa3hrcmp0d2R0c3FxcHdibGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NTMzNjgsImV4cCI6MjA4NDAyOTM2OH0.DMGfW7HtKYv0bK2BITpyXQSM6R5CMaqUOhcYv1Xblz0"
+    # # Supabase
+    # SUPABASE_URL: str = "https://adefcefrfrf.supabase.co"
+    # SUPABASE_KEY: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
 
     # Security
     SECRET_KEY: str
