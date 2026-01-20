@@ -68,7 +68,6 @@ def get_os_info(client):
 
 
 def get_docker_stats(client):
-
     check_cmd = "docker --version 2>/dev/null"
     output, err = run_command(client, check_cmd)
 
@@ -142,22 +141,17 @@ def get_docker_stats(client):
 
 def ssh_connect(host: str, username: str, password: Optional[str] = None,
                 port: int = 22, key: Optional[str] = None) -> Dict:
-
     global ssh_client
-
     if ssh_client is not None:
         return {"message": "Already connected"}
-
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
     try:
         if key:
             pkey = paramiko.RSAKey.from_private_key_file(key)
             ssh_client.connect(hostname=host, username=username, pkey=pkey, port=port, timeout=10)
         else:
             ssh_client.connect(hostname=host, username=username, password=password, port=port, timeout=10)
-
         logger.info(f"✅ SSH login successful: {username}@{host}:{port}")
 
         data = {

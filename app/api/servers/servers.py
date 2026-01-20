@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from app.services.ssh_service import ssh_connect, get_client, get_docker_stats
+from app.services.server_service import ssh_connect, get_client, get_docker_stats
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ class SSHLoginRequest(BaseModel):
     key: str = None
 
 
-@router.post("/ssh")
+@router.post("/login")
 def login_server_ssh(request: SSHLoginRequest):
     try:
         data = ssh_connect(
