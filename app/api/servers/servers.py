@@ -7,12 +7,14 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+
 class SSHLoginRequest(BaseModel):
     host: str
     username: str
     password: str = None
     port: int = 22
     key: str = None
+
 
 @router.post("/ssh")
 def login_server_ssh(data: SSHLoginRequest):
