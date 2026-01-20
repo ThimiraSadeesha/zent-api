@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from app.services.server_service import ssh_connect, get_client, get_docker_stats
+from app.services.server_service import ssh_connect, get_client
 import logging
 
 logger = logging.getLogger(__name__)
@@ -37,14 +37,3 @@ def login_server_ssh(request: SSHLoginRequest):
         )
 
 
-@router.get("/docker/stats")
-def docker_stats():
-    client = get_client()
-
-    if client is None:
-        raise HTTPException(status_code=400, detail="SSH not connected. Please call /ssh first.")
-
-    return {
-        "status": "success",
-        "data": get_docker_stats(client)
-    }
