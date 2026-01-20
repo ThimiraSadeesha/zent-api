@@ -19,7 +19,11 @@ def docker_stats():
     client = get_client()
     if client is None:
         raise HTTPException(status_code=400, detail="SSH not connected. Please call /ssh first.")
-    return get_docker_stats(client)
+
+    return {
+        "status": "success",
+        "data": get_docker_stats(client)
+    }
 
 
 @router.post("/start")
@@ -27,7 +31,10 @@ def start_container(request: DockerActionRequest):
     client = get_client()
     if client is None:
         raise HTTPException(status_code=400, detail="SSH not connected. Please call /ssh first.")
-    return docker_start_container(client, request.container_name)
+    return {
+        "status": "success",
+        "data": docker_start_container(client, request.container_name)
+    }
 
 
 @router.post("/stop")
@@ -35,7 +42,11 @@ def stop_container(request: DockerActionRequest):
     client = get_client()
     if client is None:
         raise HTTPException(status_code=400, detail="SSH not connected. Please call /ssh first.")
-    return docker_stop_container(client, request.container_name)
+
+    return {
+        "status": "success",
+        "data": docker_stop_container(client, request.container_name)
+    }
 
 
 @router.post("/restart")
@@ -43,4 +54,7 @@ def restart_container(request: DockerActionRequest):
     client = get_client()
     if client is None:
         raise HTTPException(status_code=400, detail="SSH not connected. Please call /ssh first.")
-    return docker_restart_container(client, request.container_name)
+    return {
+        "status": "success",
+        "data": docker_restart_container(client, request.container_name)
+    }
