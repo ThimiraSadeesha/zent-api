@@ -8,8 +8,6 @@ warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning)
 logging.getLogger("paramiko").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
-# GLOBAL SSH CLIENT
-ssh_client = None
 
 
 def run_command(client, command: str):
