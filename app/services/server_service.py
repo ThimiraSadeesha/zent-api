@@ -7,8 +7,7 @@ from cryptography.utils import CryptographyDeprecationWarning
 warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning)
 logging.getLogger("paramiko").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
-
-
+ssh_client = None
 
 def run_command(client, command: str):
     stdin, stdout, stderr = client.exec_command(command)
@@ -63,78 +62,6 @@ def get_os_info(client):
         parts = output.strip('|').split('|')
         return {"name": parts[0] if len(parts) > 0 else "", "version": parts[1] if len(parts) > 1 else ""}
     return {"error": err}
-
-
-def get_docker_stats(client):
-    check_cmd = "docker --version 2>/dev/null"
-    output, err = run_command(client, check_cmd)
-
-    if not output:
-        return {"docker_installed": False, "error": "Docker not found"}
-
-    stats_cmd = """docker stats --no-stream --format '{{.Name}}|{{.CPUPerc}}|{{.MemUsage}}|{{.MemPerc}}|{{.NetIO}}|{{.BlockIO}}|{{.PIDs}}' 2>/dev/null"""
-    stats_output, stats_err = run_command(client, stats_cmd)
-
-    status_cmd = "docker ps -a --format '{{.Names}}|{{.Status}}|{{.State}}|{{.Image}}' 2>/dev/null"
-    status_output, status_err = run_command(client, status_cmd)
-
-    if not stats_output and not status_output:
-        return {"docker_installed": True, "total_containers": 0, "containers": []}
-
-    status_map = {}
-    if status_output:
-        for line in status_output.split('\n'):
-            if '|' in line:
-                parts = line.split('|')
-                if len(parts) >= 4:
-                    name, status, state, image = parts[0], parts[1], parts[2], parts[3]
-                    status_map[name] = {
-                        "status": status,
-                        "state": state,
-                        "image": image
-                    }
-
-    containers = []
-    if stats_output:
-        for line in stats_output.split('\n'):
-            if '|' in line:
-                parts = line.split('|')
-                if len(parts) >= 7:
-                    name = parts[0]
-                    container_info = {
-                        "name": name,
-                        "cpu_percent": parts[1],
-                        "memory_usage": parts[2],
-                        "memory_percent": parts[3],
-                        "network_io": parts[4],
-                        "block_io": parts[5],
-                        "pids": parts[6]
-                    }
-                    if name in status_map:
-                        container_info.update(status_map[name])
-                    containers.append(container_info)
-
-    for name, info in status_map.items():
-        if not any(c['name'] == name for c in containers):
-            containers.append({
-                "name": name,
-                "status": info["status"],
-                "state": info["state"],
-                "image": info["image"],
-                "cpu_percent": "N/A",
-                "memory_usage": "N/A",
-                "memory_percent": "N/A",
-                "network_io": "N/A",
-                "block_io": "N/A",
-                "pids": "N/A"
-            })
-
-    return {
-        "docker_installed": True,
-        "total_containers": len(containers),
-        "running_containers": sum(1 for c in containers if c.get("state") == "running"),
-        "containers": containers
-    }
 
 
 def ssh_connect(host: str, username: str, password: Optional[str] = None,
