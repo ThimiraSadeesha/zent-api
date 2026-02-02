@@ -1,12 +1,12 @@
 
 from fastapi import FastAPI
-
 from app.api.auth import auth
 from app.core.configs.config import settings
 from app.core.logging.logger import setup_logging
 from app.core.middleware.cors import setup_cors
 from app.core.middleware.lifecycle import register_lifecycle_events
 from app.api.routes import servers, docker
+
 
 logger = setup_logging()
 

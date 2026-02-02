@@ -1,40 +1,60 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
+from app.core.utils.encryption import encryption_service
 from app.services.server_service import ssh_connect, get_client
 import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+
 class SSHLoginRequest(BaseModel):
     host: str
     username: str
-    password: str = None
+    password: Optional[str] = None
     port: int = 22
-    key: str = None
-
+    key: Optional[str] = None
 
 @router.post("/login")
 def login_server_ssh(request: SSHLoginRequest):
     try:
-        data = ssh_connect(
-            host=request.host,
-            username=request.username,
-            password=request.password,
-            port=request.port,
-            key=request.key,
+
+        host = encryption_service.decrypt(request.host)
+        username = encryption_service.decrypt(request.username)
+
+        password = (
+            encryption_service.decrypt(request.password)
+            if request.password else None
         )
+
+        key = (
+            encryption_service.decrypt(request.key)
+            if request.key else None
+        )
+
+        data = ssh_connect(
+            host=host,
+            username=username,
+            password=password,
+            port=request.port,
+            key=key,
+        )
+
         return {
             "status": "success",
             "data": data
         }
+
     except Exception as e:
         logger.error(f"SSH connection error: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"SSH connection failed: {str(e)}"
+            detail="SSH connection failed"
         )
+
 
 @router.get("/reboot")
 def reboot_server_route():
